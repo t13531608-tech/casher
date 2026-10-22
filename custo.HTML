@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>كافيه ومطعم المساء — نظام دورك</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#FDFBF7',
+                            100: '#F7F2E8',
+                            400: '#E2BD8A',
+                            500: '#D9A76A',
+                            600: '#C39153',
+                            900: '#2A1F13',
+                        },
+                        surface: {
+                            50: '#F8FAFC',
+                            800: '#1E232B',
+                            900: '#121417',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Cairo', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
+    </style>
+</head>
+<body id="app-body" class="bg-surface-900 text-slate-100 min-h-screen flex items-center justify-center p-4 transition-colors duration-500">
+
+    <main class="w-full max-w-md bg-surface-800 border border-slate-800/80 rounded-3xl shadow-2xl overflow-hidden flex flex-col min-h-[580px] justify-between relative">
+        
+        <!-- الترويسة -->
+        <header class="p-6 pb-4 text-center border-b border-slate-800/60 bg-surface-900/40">
+            <div class="inline-flex items-center gap-2 mb-1">
+                <i data-lucide="coffee" class="w-5 h-5 text-brand-500"></i>
+                <h1 class="text-xl font-bold tracking-tight text-brand-100">كافيه ومطعم المساء</h1>
+            </div>
+            <p class="text-xs text-slate-400 font-medium">نظام الترتيب التنازلي المباشر</p>
+        </header>
+
+        <!-- 1. شاشة التسجيل -->
+        <section id="screen-register" class="p-6 space-y-5 flex-1 flex flex-col justify-center">
+            <div class="space-y-1 text-center">
+                <h2 class="text-lg font-bold text-slate-100">انضم إلى قائمة الانتظار</h2>
+                <p class="text-xs text-slate-400">سجّل بياناتك لتصلك المناداة فور تجهيز طاولتك</p>
+            </div>
+
+            <div id="register-error" class="hidden p-3 bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs font-semibold rounded-xl flex items-center gap-2">
+                <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
+                <span id="register-error-text">يرجى التأكد من كتابة البيانات بصورة صحيحة.</span>
+            </div>
+
+            <form id="form-register" class="space-y-4">
+                <div>
+                    <label for="input-name" class="block text-xs font-semibold text-slate-300 mb-1.5">الاسم الكريم <span class="text-brand-500">*</span></label>
+                    <div class="relative">
+                        <i data-lucide="user" class="w-4 h-4 absolute right-3.5 top-3.5 text-slate-500"></i>
+                        <input type="text" id="input-name" required placeholder="مثال: محمد العتيبي"
+                            class="w-full bg-surface-900/80 border border-slate-700/80 rounded-xl pr-10 pl-4 py-2.5 text-sm text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-brand-500 transition">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="input-phone" class="block text-xs font-semibold text-slate-300 mb-1.5">رقم الجوال <span class="text-brand-500">*</span></label>
+                    <div class="relative">
+                        <i data-lucide="phone" class="w-4 h-4 absolute right-3.5 top-3.5 text-slate-500"></i>
+                        <input type="tel" id="input-phone" required maxlength="10" placeholder="05xxxxxxxx" dir="ltr"
+                            class="w-full bg-surface-900/80 border border-slate-700/80 rounded-xl pr-10 pl-4 py-2.5 text-sm text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-brand-500 transition text-right">
+                    </div>
+                    <span class="text-[10px] text-slate-500 mt-1 block">يجب أن يبدأ بـ 05 ويتكون من 10 أرقام.</span>
+                </div>
+
+                <div>
+                    <label for="input-guests" class="block text-xs font-semibold text-slate-300 mb-1.5">عدد الأفراد <span class="text-brand-500">*</span></label>
+                    <div class="relative">
+                        <i data-lucide="users" class="w-4 h-4 absolute right-3.5 top-3.5 text-slate-500"></i>
+                        <select id="input-guests" class="w-full bg-surface-900/80 border border-slate-700/80 rounded-xl pr-10 pl-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-brand-500 transition appearance-none">
+                            <option value="1">شخص واحد</option>
+                            <option value="2" selected>شخصان (2)</option>
+                            <option value="3">3 أشخاص</option>
+                            <option value="4">4 أشخاص</option>
+                            <option value="5">5 أشخاص أو أكثر</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" id="btn-submit"
+                    class="w-full bg-brand-500 hover:bg-brand-600 active:scale-[0.99] text-surface-900 font-bold py-3.5 rounded-xl text-sm shadow-lg shadow-brand-500/10 transition flex items-center justify-center gap-2">
+                    <span>احجز دورك الآن</span>
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                </button>
+            </form>
+        </section>
+
+        <!-- 2. شاشة ترتيب الدور التنازلي اللحظي -->
+        <section id="screen-queue" class="p-6 space-y-6 flex-1 flex flex-col justify-center text-center hidden">
+            <div class="inline-flex items-center justify-center gap-1.5 bg-brand-500/10 border border-brand-500/20 text-brand-400 px-3 py-1 rounded-full text-xs font-semibold mx-auto">
+                <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+                <span>متابعة حالة الطابور المباشرة</span>
+            </div>
+
+            <div class="space-y-1">
+                <p id="queue-cust-name" class="text-xs text-slate-400 font-medium">أهلاً بك</p>
+                <div id="queue-position-display" class="text-6xl font-black tracking-tight text-brand-500 font-mono my-2">#1</div>
+                <p id="queue-position-label" class="text-xs text-slate-300 font-semibold">أنت التالي في الانتظار مباشرة!</p>
+            </div>
+
+            <div class="bg-surface-900/60 border border-slate-800 p-4 rounded-2xl space-y-1">
+                <span id="queue-ticket-num" class="text-xl font-bold text-slate-400 font-mono">تذكرتك الأصلي: #0</span>
+                <p class="text-xs text-slate-500 font-medium">ينقص ترتيبك تلقائياً كلما تم خدمة عميل قبلك</p>
+            </div>
+
+            <button onclick="handleCancelMyTicket()" class="text-xs text-rose-400 hover:text-rose-300 underline underline-offset-4 font-semibold transition">
+                إلغاء حجز دوري
+            </button>
+        </section>
+
+        <!-- 3. شاشة الجاهزية والمناداة -->
+        <section id="screen-called" class="p-6 space-y-6 flex-1 flex flex-col justify-center text-center hidden">
+            <div class="w-16 h-16 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full flex items-center justify-center mx-auto shadow-xl">
+                <i data-lucide="bell-ring" class="w-8 h-8 animate-bounce"></i>
+            </div>
+
+            <div class="space-y-2">
+                <span class="text-xs font-bold text-emerald-400 tracking-wider">جاء دورك الآن!</span>
+                <div id="called-ticket-num" class="text-6xl font-black text-white font-mono">#1</div>
+                <h2 class="text-xl font-bold text-slate-100">تفضل بالدخول إلى الكاونتر</h2>
+                <p class="text-xs text-slate-300 max-w-xs mx-auto">طاولتك جاهزة وفريق العمل بانتظارك.</p>
+            </div>
+
+            <!-- عند الضغط على هذا الزر يتم إيقاف الصوت وبدء الصفحة من جديد بالكامل -->
+            <button onclick="handleAcknowledgeService()" class="w-full bg-emerald-500 hover:bg-emerald-600 active:scale-[0.99] text-surface-900 font-bold py-3.5 rounded-xl text-sm shadow-xl transition flex items-center justify-center gap-2">
+                <i data-lucide="check-circle" class="w-4 h-4"></i>
+                <span>تأكيد الوصول والاستلام (إيقاف التنبيه)</span>
+            </button>
+        </section>
+
+        <footer class="p-4 text-center border-t border-slate-800/40 text-[11px] text-slate-500 font-medium">
+            مشغّل بواسطة نظام «دورك»
+        </footer>
+    </main>
+
+    <audio id="audio-bell" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto" loop></audio>
+
+    <script>
+        const SYNC_CHANNEL_KEY = 'dorak_system_channel';
+        const STORAGE_QUEUE_KEY = 'dorak_queue_data';
+        const STORAGE_MY_TICKET_KEY = 'dorak_current_active_ticket';
+        const channel = new BroadcastChannel(SYNC_CHANNEL_KEY);
+
+        let myActiveTicket = JSON.parse(localStorage.getItem(STORAGE_MY_TICKET_KEY)) || null;
+
+        const screenRegister = document.getElementById('screen-register');
+        const screenQueue = document.getElementById('screen-queue');
+        const screenCalled = document.getElementById('screen-called');
+        const registerError = document.getElementById('register-error');
+        const registerErrorText = document.getElementById('register-error-text');
+        const formRegister = document.getElementById('form-register');
+        const audioBell = document.getElementById('audio-bell');
+
+        lucide.createIcons();
+
+        formRegister.addEventListener('submit', (e) => {
+            e.preventDefault();
+            registerError.classList.add('hidden');
+
+            const name = document.getElementById('input-name').value.trim();
+            const phone = document.getElementById('input-phone').value.trim();
+            const guests = parseInt(document.getElementById('input-guests').value);
+
+            if (name.length < 2) {
+                showError('يرجى كتابة اسم واضح.');
+                return;
+            }
+
+            const saudiPhoneRegex = /^05\d{8}$/;
+            if (!saudiPhoneRegex.test(phone)) {
+                showError('يرجى إدخال رقم جوال يبدأ بـ 05 ويتكون من 10 أرقام.');
+                return;
+            }
+
+            const queueList = getStoredQueue();
+            const existing = queueList.find(q => q.phone === phone && (q.status === 'waiting' || q.status === 'called'));
+            
+            if (existing) {
+                saveMyTicket(existing);
+                renderState();
+                return;
+            }
+
+            const nextTicketNum = (queueList.length > 0 ? Math.max(...queueList.map(q => q.ticketNum)) : 0) + 1;
+            const newTicket = {
+                id: 'TK-' + Date.now(),
+                ticketNum: nextTicketNum,
+                name: sanitizeInput(name),
+                phone: phone,
+                guests: guests,
+                status: 'waiting',
+                createdAt: Date.now()
+            };
+
+            queueList.push(newTicket);
+            saveStoredQueue(queueList);
+            saveMyTicket(newTicket);
+            broadcastSync();
+            renderState();
+        });
+
+        function renderState() {
+            if (!myActiveTicket) {
+                screenRegister.classList.remove('hidden');
+                screenQueue.classList.add('hidden');
+                screenCalled.classList.add('hidden');
+                formRegister.reset(); // تصفير الحقول بالكامل
+                stopBell();
+                return;
+            }
+
+            const queueList = getStoredQueue();
+            const current = queueList.find(q => q.id === myActiveTicket.id);
+
+            if (!current) {
+                clearMyTicket();
+                alert('تم إغلاق أو إلغاء رقم الانتظار الخاص بك من الكاشير.');
+                renderState();
+                return;
+            }
+
+            saveMyTicket(current);
+
+            if (current.status === 'waiting') {
+                screenRegister.classList.add('hidden');
+                screenCalled.classList.add('hidden');
+                screenQueue.classList.remove('hidden');
+
+                const waitingList = queueList.filter(q => q.status === 'waiting');
+                const myPosition = waitingList.findIndex(q => q.id === current.id) + 1;
+
+                document.getElementById('queue-cust-name').textContent = `أهلاً بك، ${current.name}`;
+                document.getElementById('queue-position-display').textContent = `#${myPosition}`;
+                
+                if (myPosition === 1) {
+                    document.getElementById('queue-position-label').textContent = 'أنت التالي في الانتظار! استعد للمناداة.';
+                } else {
+                    document.getElementById('queue-position-label').textContent = `يوجد ${myPosition - 1} عملاء قبلك في الانتظار`;
+                }
+
+                document.getElementById('queue-ticket-num').textContent = `رقم الحجز المرجعي: #${current.ticketNum}`;
+                stopBell();
+
+            } else if (current.status === 'called') {
+                screenRegister.classList.add('hidden');
+                screenQueue.classList.add('hidden');
+                screenCalled.classList.remove('hidden');
+
+                document.getElementById('called-ticket-num').textContent = `#${current.ticketNum}`;
+                playBell();
+
+            } else if (current.status === 'served') {
+                clearMyTicket();
+                stopBell();
+                renderState();
+            }
+        }
+
+        function saveMyTicket(ticket) {
+            myActiveTicket = ticket;
+            localStorage.setItem(STORAGE_MY_TICKET_KEY, JSON.stringify(ticket));
+        }
+
+        function clearMyTicket() {
+            myActiveTicket = null;
+            localStorage.removeItem(STORAGE_MY_TICKET_KEY);
+        }
+
+        function handleCancelMyTicket() {
+            if (!confirm('هل أنت تأكد من إلغاء رقمك؟')) return;
+            if (myActiveTicket) {
+                let queueList = getStoredQueue();
+                queueList = queueList.filter(q => q.id !== myActiveTicket.id);
+                saveStoredQueue(queueList);
+                clearMyTicket();
+                broadcastSync();
+                renderState();
+            }
+        }
+
+        // إيقاف التنبيه وبدء الصفحة من جديد بالكامل
+        function handleAcknowledgeService() {
+            if (myActiveTicket) {
+                let queueList = getStoredQueue();
+                queueList = queueList.map(q => q.id === myActiveTicket.id ? { ...q, status: 'served', servedAt: Date.now() } : q);
+                saveStoredQueue(queueList);
+                
+                // مسح التذكرة الحالية وتفريغ البيانات
+                clearMyTicket();
+                stopBell();
+                broadcastSync();
+                
+                // العودة لشاشة التسجيل الرئيسية كصفحة جديدة
+                renderState();
+            }
+        }
+
+        function playBell() {
+            audioBell.currentTime = 0;
+            audioBell.play().catch(() => console.log('تعذر التشغيل التلقائي'));
+        }
+
+        function stopBell() {
+            audioBell.pause();
+            audioBell.currentTime = 0;
+        }
+
+        function showError(msg) {
+            registerErrorText.textContent = msg;
+            registerError.classList.remove('hidden');
+        }
+
+        function sanitizeInput(str) {
+            const temp = document.createElement('div');
+            temp.textContent = str;
+            return temp.innerHTML;
+        }
+
+        function getStoredQueue() {
+            return JSON.parse(localStorage.getItem(STORAGE_QUEUE_KEY)) || [];
+        }
+
+        function saveStoredQueue(data) {
+            localStorage.setItem(STORAGE_QUEUE_KEY, JSON.stringify(data));
+        }
+
+        function broadcastSync() {
+            channel.postMessage({ type: 'SYNC_EVENT', timestamp: Date.now() });
+        }
+
+        channel.onmessage = (e) => {
+            if (e.data.type === 'SYNC_EVENT') {
+                renderState();
+            }
+        };
+
+        window.addEventListener('storage', () => {
+            renderState();
+        });
+
+        renderState();
+    </script>
+</body>
+</html>
