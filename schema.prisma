@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Report {
+  id          String   @id @default(cuid())
+  type        String
+  branch      String
+  reportDate  DateTime
+  payload     Json
+  telegramStatus String @default("PENDING")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  attachments Attachment[]
+  attempts    SendAttempt[]
+  @@index([type, branch, reportDate])
+  @@index([createdAt])
+}
+
+model Attachment {
+  id        String   @id @default(cuid())
+  reportId  String
+  fileName  String
+  storedName String
+  mimeType  String
+  size      Int
+  createdAt DateTime @default(now())
+  report    Report   @relation(fields: [reportId], references: [id], onDelete: Cascade)
+}
+
+model SendAttempt {
+  id          String   @id @default(cuid())
+  reportId    String
+  status      String
+  message     String?
+  attemptedAt DateTime @default(now())
+  report      Report   @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  @@index([reportId, attemptedAt])
+}
+
+model AppSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
